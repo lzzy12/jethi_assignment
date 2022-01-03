@@ -13,31 +13,22 @@ class UserDetailsView extends GetView<UserDetailsController> {
   @override
   Widget build(BuildContext context) {
     final AuthService auth = Get.find();
-    final size = MediaQuery.of(context).size;
+    final user = auth.currentUser;
     return Scaffold(
         appBar: AppBar(
           title: Text(auth.currentUser?.name ??
               "No user logged in! You shouldn't be here anyway"),
           centerTitle: true,
         ),
-        body: Container(
-          height: size.height / 2,
-          width: size.width / 2,
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-            color: Colors.amber,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(children: [const Text("Name: "), Text(auth.currentUser?.name?? "No user"),],),
-              const SizedBox(height: 8,),
-              Row(children: [const Text("Age: "), Text(auth.currentUser?.age.toString() ?? "No user"),],),
-              const SizedBox(height: 8,),
-              Row(children: [const Text("User type: "), Text(auth.currentUser?.aType?? "No user"),],),
-              const SizedBox(height: 8,),
-              Row(children: [const Text("Gender: "), Text( describeEnum(auth.currentUser?.gender?? Gender.male)),],),
-            ],
+        body: Card(
+          child: ListTile(
+            title: Text(user?.name ?? "No User"),
+            subtitle: Text('Age: ${user?.age.toString()}'),
+            trailing: Text(user?.aType ?? ""),
+            leading: CircleAvatar(
+              child:
+                  Icon(user?.gender == Gender.male ? Icons.male : Icons.female),
+            ),
           ),
         ));
   }
