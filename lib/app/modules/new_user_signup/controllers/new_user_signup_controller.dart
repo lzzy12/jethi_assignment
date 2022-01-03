@@ -7,20 +7,23 @@ class NewUserSignupController extends GetxController {
 
   final gender = Rx<Gender?>(null);
   final age = Rx<int?>(null);
-  late GlobalKey<FormState> _formState;
+  late GlobalKey<FormState> formKey;
   @override
-  void onReady() {
-    super.onReady();
+  void onInit() {
+    super.onInit();
     ageController = TextEditingController();
-    _formState = GlobalKey<FormState>();
+    formKey = GlobalKey<FormState>();
+  }
+
+  void onGenderChanged(Gender? gender) {
+    this.gender.value = gender;
   }
 
   String? ageValidator(String? value) {
-    if (value == null) {
+    if (value == null || value.isEmpty) {
       return "Age is required!";
     }
-    final regex = RegExp(r'^[0-9]*$');
-    if (regex.hasMatch(value)) return null;
+    if (value.isNumericOnly) return null;
     return "Please enter a valid age";
   }
 
@@ -29,6 +32,7 @@ class NewUserSignupController extends GetxController {
   }
 
   void onSaveAge(String? age) {
+    debugPrint("called OnSaveAge");
     this.age.value = int.parse(ageController.text);
   }
 
@@ -37,7 +41,7 @@ class NewUserSignupController extends GetxController {
   }
 
   void onFormSumbit() {
-    final form = _formState.currentState;
+    final form = formKey.currentState;
     if (form == null) return;
     if (!form.validate()) return;
     form.save();

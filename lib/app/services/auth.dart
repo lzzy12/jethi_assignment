@@ -6,40 +6,55 @@ enum AuthState { uninit, authenticated, unauthenticated }
 
 class AuthService extends GetxService {
   final _authState = AuthState.uninit.obs;
+  bool get isInitialised => _authState.value != AuthState.uninit;
   AuthState get authState => _authState.value;
-  final currentUser = Rx<User?>(null);
-  late Box _userBox;
-
+  final _currentUser = Rx<User?>(null);
+  User? get currentUser => _currentUser.value;
+  bool get loggedIn => _currentUser.value != null;
+  late Box<User> _userBox;
+  Box? _appState;
   @override
   void onReady() {
+    _currentUser.listen((user) async {
+      if (user == null) {
+        return;
+      }
+      _appState?.put("loggedIn", user.id);
+    });
     init();
   }
 
   Future<void> init() async {
-    _userBox = await Hive.openBox<List<User>>('users');
-    final appState = await Hive.openBox('app_state');
-    String? loggedInId = appState.get('loggedIn');
+    _userBox = await Hive.openBox<User>('users');
+    _appState = await Hive.openBox('app_state');
+    String? loggedInId = _appState?.get('loggedIn');
     if (loggedInId == null) {
       _authState.value = AuthState.unauthenticated;
       return;
     } else {
-      currentUser.value = _userBox.get(loggedInId);
+      _currentUser.value = _userBox.get(loggedInId);
       _authState.value = AuthState.authenticated;
     }
   }
 
-  Future<void> onLoginClicked(String id, Function() onFirstTimeLogin) async {
-    final User? userData = await _userBox.get(id);
+  Future<void> onLoginClicked(User user, Function() onFirstTimeLogin) async {
+    final User? userData = _userBox.get(user.id);
     if (userData == null) {
+      _currentUser.value = user;
       onFirstTimeLogin();
     } else {
-      currentUser.value = userData;
+      _currentUser.value = userData;
     }
   }
 
   void saveAdditionalUserData(User user) async {
-    currentUser.value?.age = user.age;
-    currentUser.value?.gender = user.gender;
-    currentUser.value?.save();
+    _currentUser.value?.age = user.age;
+    _currentUser.value?.gender = user.gender;
+    _userBox.put(user.id, user);
+    _currentUser.value?.save();
+  }
+
+  void logout() {
+    _currentUser.value = null;
   }
 }

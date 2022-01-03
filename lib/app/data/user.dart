@@ -1,7 +1,15 @@
 import 'package:hive/hive.dart';
 part 'user.g.dart';
 
-enum Gender { male, female, others }
+@HiveType(typeId: 1)
+enum Gender {
+  @HiveField(0)
+  male,
+  @HiveField(1)
+  female,
+  @HiveField(2)
+  others
+}
 
 @HiveType(typeId: 0)
 class User extends HiveObject {

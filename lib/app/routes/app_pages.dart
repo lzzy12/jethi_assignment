@@ -6,6 +6,8 @@ import '../modules/home/views/home_view.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/new_user_signup/bindings/new_user_signup_binding.dart';
 import '../modules/new_user_signup/views/new_user_signup_view.dart';
+import '../modules/user_details/bindings/user_details_binding.dart';
+import '../modules/user_details/views/user_details_view.dart';
 
 part 'app_routes.dart';
 
@@ -31,6 +33,11 @@ class AppPages {
       name: _Paths.NEW_USER_SIGNUP,
       page: () => NewUserSignupView(),
       binding: NewUserSignupBinding(),
+    ),
+    GetPage(
+      name: _Paths.USER_DETAILS,
+      page: () => UserDetailsView(),
+      binding: UserDetailsBinding(),
     ),
   ];
 }
